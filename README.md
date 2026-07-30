@@ -1,5 +1,7 @@
 # terminal-progress-bar
 
+> One progress, two interfaces: terminal for you, MCP for the AI.
+
 Shared terminal progress bars for parallel scripts and processes. Track multiple jobs from different terminals or scripts and watch them update in real time.
 
 ## Install
