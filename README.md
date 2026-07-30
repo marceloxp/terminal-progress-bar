@@ -5,7 +5,7 @@ Shared terminal progress bars for parallel scripts and processes. Track multiple
 ## Install
 
 ```bash
-uv tool install .
+uv tool install -e .
 ```
 
 Or from a clone of this repository:
@@ -13,10 +13,15 @@ Or from a clone of this repository:
 ```bash
 git clone https://github.com/you/terminal-progress-bar.git
 cd terminal-progress-bar
-uv tool install .
+uv tool install -e .
 ```
 
+Editable install (`-e`) keeps `tpb` linked to the source tree, so local changes take effect without reinstalling.
+
 ## Usage
+
+Run `tpb --help` for an overview, or `tpb <command> --help` for command details
+(e.g. `tpb create --help`).
 
 ### Create a progress bar
 

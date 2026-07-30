@@ -29,7 +29,10 @@ from tpb.store import (
 
 app = typer.Typer(
     name="tpb",
-    help="Shared terminal progress bars for parallel scripts and processes.",
+    help=(
+        "Shared terminal progress bars for parallel scripts and processes.\n\n"
+        "Run --help on any command for details, e.g. tpb create --help."
+    ),
     no_args_is_help=False,
     invoke_without_command=True,
     add_completion=False,

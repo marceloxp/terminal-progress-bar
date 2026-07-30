@@ -12,6 +12,12 @@ from tpb.store import create_bar, read_bar
 runner = CliRunner()
 
 
+def test_main_help_mentions_command_help():
+    result = runner.invoke(cli_module.app, ["--help"])
+    assert result.exit_code == 0
+    assert "tpb create --help" in result.stdout
+
+
 def test_create_command(isolated_config, monkeypatch):
     monkeypatch.setattr("tpb.config.CONFIG_DIR", isolated_config)
     monkeypatch.setattr("tpb.store.CONFIG_DIR", isolated_config)
