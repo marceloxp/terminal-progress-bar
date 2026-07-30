@@ -62,7 +62,7 @@ tpb rm backup-db        # remove a bar
 tpb monitor
 ```
 
-The monitor redraws the screen when any progress bar changes. Bars stay visible until removed with `tpb rm`.
+The monitor redraws the screen when any progress bar changes. Bars stay visible until removed with `tpb rm`. Press `q` to exit.
 
 ## Storage
 

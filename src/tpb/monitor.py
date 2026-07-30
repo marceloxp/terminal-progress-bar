@@ -2,16 +2,25 @@
 
 from __future__ import annotations
 
-import time
+import select
+import sys
+import termios
+import tty
+from contextlib import contextmanager
+from typing import Iterator
 
 from rich.console import Group
 from rich.live import Live
+from rich.text import Text
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
 
 from tpb.config import CONFIG_DIR
 from tpb.render import render_bar_group
 from tpb.store import ensure_config_dir, list_bars
+
+MONITOR_FOOTER = "q to exit"
+_POLL_INTERVAL = 0.25
 
 
 class _ConfigDirHandler(FileSystemEventHandler):
@@ -27,12 +36,39 @@ class _ConfigDirHandler(FileSystemEventHandler):
 
 def _build_display() -> Group:
     bars = list_bars()
+    parts: list[Group | Text] = []
     if not bars:
-        from rich.text import Text
+        parts.append(Text("[dim]No progress bars registered.[/dim]"))
+    else:
+        parts.extend(render_bar_group(bar) for bar in bars)
+    parts.append(Text(""))
+    parts.append(Text(MONITOR_FOOTER, style="dim"))
+    return Group(*parts)
 
-        return Group(Text("[dim]No progress bars registered.[/dim]"))
 
-    return Group(*[render_bar_group(bar) for bar in bars])
+@contextmanager
+def _cbreak_stdin() -> Iterator[None]:
+    if not sys.stdin.isatty():
+        yield
+        return
+
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setcbreak(fd)
+        yield
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+
+def _read_key(timeout: float = _POLL_INTERVAL) -> str | None:
+    if not sys.stdin.isatty():
+        return None
+
+    ready, _, _ = select.select([sys.stdin], [], [], timeout)
+    if not ready:
+        return None
+    return sys.stdin.read(1)
 
 
 def run_monitor() -> None:
@@ -44,12 +80,15 @@ def run_monitor() -> None:
     observer.start()
 
     try:
-        with Live(_build_display(), refresh_per_second=4, screen=True) as live:
-            while True:
-                if handler.changed:
-                    handler.changed = False
-                    live.update(_build_display())
-                time.sleep(0.25)
+        with _cbreak_stdin():
+            with Live(_build_display(), refresh_per_second=4, screen=True) as live:
+                while True:
+                    key = _read_key()
+                    if key in {"q", "Q"}:
+                        break
+                    if handler.changed:
+                        handler.changed = False
+                        live.update(_build_display())
     except KeyboardInterrupt:
         pass
     finally:
