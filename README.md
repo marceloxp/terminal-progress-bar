@@ -113,6 +113,71 @@ created_at: 2026-07-30T12:00:00Z
 updated_at: 2026-07-30T12:05:00Z
 ```
 
+## MCP Server
+
+The package includes an MCP server (`tpb-mcp`) for AI clients to manage progress bars programmatically over stdio.
+
+### Run
+
+After install:
+
+```bash
+tpb-mcp
+```
+
+From a clone without global install:
+
+```bash
+uv run tpb-mcp
+```
+
+### Client configuration
+
+Example MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "terminal-progress-bar": {
+      "command": "tpb-mcp",
+      "args": []
+    }
+  }
+}
+```
+
+From the repository:
+
+```json
+{
+  "mcpServers": {
+    "terminal-progress-bar": {
+      "command": "uv",
+      "args": ["run", "tpb-mcp"],
+      "cwd": "/path/to/terminal-progress-bar"
+    }
+  }
+}
+```
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| `tpb_create` | Create a progress bar |
+| `tpb_update` | Set absolute progress value |
+| `tpb_increment` | Increment or decrement progress |
+| `tpb_message` | Set status message below the bar |
+| `tpb_done` | Mark as completed |
+| `tpb_error` | Mark as failed |
+| `tpb_remove` | Remove a progress bar |
+| `tpb_list` | List all bars (structured JSON) |
+| `tpb_get` | Get one bar by slug |
+
+Example flow: `tpb_create` → `tpb_update` / `tpb_increment` → `tpb_message` → `tpb_done`.
+
+Tools return structured JSON (bar fields as dict). The human `tpb monitor` view updates automatically when bars change on disk.
+
 ## Development
 
 ```bash
